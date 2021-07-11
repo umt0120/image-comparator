@@ -23,6 +23,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.yaml/snakeyaml
     implementation 'org.yaml:snakeyaml:1.29'
+    // https://mvnrepository.com/artifact/com.j2html/j2html
+    implementation 'com.j2html:j2html:1.5.0'
+
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
