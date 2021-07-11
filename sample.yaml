@@ -1,0 +1,6 @@
+srcDir: ./src
+directoryInfoToCompare:
+  - title: gradcam
+    dir: ./dst/gradcam
+  - title: gradcampp
+    dir: ./dst/gradcampp
