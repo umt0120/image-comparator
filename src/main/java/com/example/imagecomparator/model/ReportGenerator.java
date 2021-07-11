@@ -1,15 +1,21 @@
 package com.example.imagecomparator.model;
 
+import j2html.tags.DomContent;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static j2html.TagCreator.*;
 
 @Component
 public class ReportGenerator {
@@ -24,7 +30,7 @@ public class ReportGenerator {
         List<Path> srcFileList = convertToPathList(configYaml.getSrcDir());
 
         // 比較対象ディレクトリ一覧
-        List<DirectoryInfo> directoryInfos = configYaml.getDirectoryInfoToCompare().stream()
+        List<DirectoryInfo> comparingDirectoryInfos = configYaml.getDirectoryInfoToCompare().stream()
                 .map(rawDirInfo -> {
                     DirectoryInfo dirInfo = new DirectoryInfo();
                     dirInfo.setTitle(rawDirInfo.getTitle());
@@ -32,9 +38,8 @@ public class ReportGenerator {
                     return dirInfo;
                 }).collect(Collectors.toList());
 
-        System.out.println(srcFileList);
-        directoryInfos.stream().forEach(System.out::println);
-
+        String report = renderReport(srcFileList, comparingDirectoryInfos);
+        outputReport(report);
     }
 
     private List<Path> convertToPathList(String path){
@@ -47,6 +52,34 @@ public class ReportGenerator {
             e.printStackTrace();
         }
         return ret;
+    }
+
+    private String renderReport(List<Path> srcFileList, List<DirectoryInfo> comparingDirectoryInfos){
+        List<String> labels = Arrays.asList("0", "1");
+        Stream<DomContent> labelList = comparingDirectoryInfos.stream().flatMap(info -> Stream.of(th("0"), th("1")));
+        return table(
+                tbody(
+                        tr(
+                                th("元ファイルパス"),
+                                th("元画像"),
+                                each(comparingDirectoryInfos, i -> th(attrs(".headerLabel"),i.getTitle()).withColspan("2"))
+                        ),
+                        tr(
+                                th(),
+                                th(),
+                                each(labelList)
+                        )
+                )
+        ).render();
+    }
+
+    private void outputReport(String report) {
+
+        try (PrintWriter w = new PrintWriter(new File("./report.html"), StandardCharsets.UTF_8)) {
+            w.print(report);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Data

@@ -26,6 +26,7 @@ public class ConfigYamlParser {
             reportGenerator.generateReport(configYaml);
 
         }catch(Exception e){
+            e.printStackTrace();
             throw new FileNotFoundException("failed to find specified file >>" + path);
         }
 
